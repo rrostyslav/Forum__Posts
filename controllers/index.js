@@ -1,13 +1,14 @@
 exports.getAllPosts = async (req, res, next) => {
     const quantity = +req.params.quantity;
     const page = +req.params.page;
-    if (!quantity || !page || page < 1 || quantity < 1) {
-        const error = new Error('Invalid quantity or page');
+    const sectionId = +req.params.sectionId;
+    if (!quantity || !page || page < 1 || quantity < 1 || !sectionId) {
+        const error = new Error('Invalid params');
         error.status = 400;
         return next(error);
     }
     try {
-        const posts = await req.con.execute("SELECT post.id id, post.text text, post.text text, post.creator creator, post.closed closed, post.last_update last_update, section.id section_id, section.title section_name FROM post LEFT JOIN section ON post.section_id = section.id ORDER BY last_update DESC LIMIT ?, ?", [quantity * (page - 1), quantity]);
+        const posts = await req.con.execute("SELECT post.id id, post.text text, post.text text, post.creator creator, post.closed closed, post.last_update last_update, section.id section_id, section.title section_name FROM post LEFT JOIN section ON post.section_id = section.id WHERE section_id=? ORDER BY last_update DESC LIMIT ?, ?", [sectionId, quantity * (page - 1), quantity]);
         res.status(200).json({
             posts: posts[0]
         });
@@ -38,18 +39,22 @@ exports.getPostById = async (req, res, next) => {
 };
 
 exports.addPost = async (req, res, next) => {
+    console.log(req.body);
+    const title = req.body.title;
+    const text = req.body.text;
+    const creatorId = req.params.creatorId;
+    const sectionId = req.body.sectionId;
+    if(!title || !text || !creatorId || !sectionId) {
+        const error = new Error('No fields provided');
+        error.status = 400;
+        return next(error);
+    }
     try {
-        const rows = await req.con.execute("INSERT INTO post VALUES(null, ?, ?, ?, false, ?, NOW())",
-            [
-                req.body.title,
-                req.body.text,
-                req.body.creatorId,
-                req.body.sectionId
-            ]);
+        const rows = await req.con.execute("INSERT INTO post VALUES(null, ?, ?, ?, false, ?, NOW())", [title, text, creatorId, sectionId]);
         res.status(200).json({
             postId: rows[0].insertId,
             sectionId: req.body.sectionId,
-            creatorId: req.body.creatorId
+            creatorId: req.params.creatorId
         });
         req.con.end();
     } catch (err) {
@@ -60,6 +65,7 @@ exports.addPost = async (req, res, next) => {
 
 exports.editPost = async (req, res, next) => {
     const id = +req.params.id;
+    console.log(id);
     const title = req.body.title;
     const text = req.body.text;
     if (isNaN(id) || id < 0 || !title || !text) {

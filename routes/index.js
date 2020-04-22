@@ -2,11 +2,11 @@ const router = require('express').Router();
 const PostsController = require('../controllers/index');
 
 // CRUD
-router.get('/:quantity/:page', PostsController.getAllPosts);
+router.get('/:sectionId/:quantity/:page', PostsController.getAllPosts);
 
 router.get('/:id', PostsController.getPostById);
 
-router.post('/', PostsController.addPost);
+router.post('/:creatorId', PostsController.addPost);
 
 router.patch('/:id', PostsController.editPost);
 
