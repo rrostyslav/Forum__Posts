@@ -1,4 +1,6 @@
-exports.getSectionById = async (req, res, next) => {
+const router = require('express').Router();
+
+router.get('/:id', async (req, res, next) => {
     const id = +req.params.id;
     if (!id) {
         const error = new Error('Invalid ID');
@@ -7,6 +9,9 @@ exports.getSectionById = async (req, res, next) => {
     }
     try {
         const section = await req.con.execute("SELECT * FROM section WHERE id=? ORDER BY title ASC", [id]);
+        if(section[0].length === 0) return res.status(404).json({
+            message: "Section Not Found!"
+        });
         res.status(200).json({
             section: section[0][0]
         });
@@ -15,11 +20,14 @@ exports.getSectionById = async (req, res, next) => {
         console.log(err);
         next(new Error('Failed to get section by ID'))
     }
-};
+});
 
-exports.getAllSections = async (req, res, next) => {
+router.get('/', async (req, res, next) => {
     try {
         const sections = await req.con.execute("SELECT * FROM section ORDER BY title ASC");
+        if(sections[0].length === 0) return res.status(404).json({
+            message: "Sections Not Found!"
+        });
         res.status(200).json({
             sections: sections[0]
         });
@@ -28,9 +36,9 @@ exports.getAllSections = async (req, res, next) => {
         console.log(err);
         next(new Error('Failed to get sections'))
     }
-};
+});
 
-exports.addSection = async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const title = req.body.title;
     if (!title) {
         const error = new Error('No title provided');
@@ -47,12 +55,12 @@ exports.addSection = async (req, res, next) => {
         console.log(err);
         next(new Error('Failed to add section'))
     }
-};
+});
 
-exports.editSection = async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
     const id = +req.params.id;
     const title = req.body.title;
-    if(!id) {
+    if(!id || !title) {
         const error = new Error('No ID or title provided');
         error.status = 400;
         return next(error);
@@ -67,9 +75,9 @@ exports.editSection = async (req, res, next) => {
         console.log(err);
         next(new Error('Failed to edit section'))
     }
-};
+});
 
-exports.deleteSection = async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     const id = req.params.id;
     if(!id) {
         const error = new Error('No ID provided');
@@ -86,4 +94,6 @@ exports.deleteSection = async (req, res, next) => {
         console.log(err);
         next(new Error('Failed to delete section'))
     }
-};
+});
+
+module.exports = router;

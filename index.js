@@ -12,16 +12,14 @@ if(process.env.NODE_ENV !== 'production') {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const postRoutes = require('./routes');
-const sectionRoutes = require('./routes/sections')
+const Routes = require('./routes');
 
 app.use(cors());
 app.use(bodyparser.json());
 app.use(morgan('dev'));
 app.use(dbPool);
 
-app.use('/section', sectionRoutes);
-app.use('/post', postRoutes);
+app.use('/', Routes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
