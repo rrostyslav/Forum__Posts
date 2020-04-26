@@ -42,11 +42,11 @@ router.get('/:sectionId/:quantity/:page', async (req, res, next) => {
     };
 });
 
-router.post('/:creatorId', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const title = req.body.title;
     const text = req.body.text;
-    const creatorId = req.params.creatorId;
-    const sectionId = req.body.sectionId;
+    const creatorId = req.body.creatorId;
+    const sectionId = req.body.section_id;
     if(!title || !text || !creatorId || !sectionId) {
         const error = new Error('No fields provided');
         error.status = 400;
@@ -66,9 +66,9 @@ router.post('/:creatorId', async (req, res, next) => {
     };
 });
 
-router.put('/move/:id', async (req, res, next) => {
-    const sectionId = +req.body.sectionId;
-    const id = +req.params.id;
+router.put('/move', async (req, res, next) => {
+    const sectionId = +req.body.section_id;
+    const id = +req.body.id;
     if (!sectionId || !id) {
         const error = new Error('Invalid post ID or section ID');
         error.status = 400;
@@ -92,7 +92,6 @@ router.put('/move/:id', async (req, res, next) => {
 
 router.put('/:id', async (req, res, next) => {
     const id = +req.params.id;
-    console.log(id);
     const title = req.body.title;
     const text = req.body.text;
     if (isNaN(id) || id < 0 || !title || !text) {

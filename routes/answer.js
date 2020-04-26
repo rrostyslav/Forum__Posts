@@ -1,5 +1,6 @@
 const router = require('express').Router();
 
+// Add answer
 router.post('/:id', async (req, res, next) => {
     const text = req.body.text;
     const creatorId = +req.body.creatorId; // ID from Auth
