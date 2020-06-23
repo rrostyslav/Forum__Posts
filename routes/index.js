@@ -1,3 +1,4 @@
+'use strict';
 const router = require('express').Router();
 const PostRoutes = require('./post');
 const AnswerRoutes = require('./answer');
